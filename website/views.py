@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, jsonify, redirect, url_for
 from flask_login import login_required, current_user
-from .models import Note, Post  # Keep Note if you want both features, or replace with Post
+from .models import Note, Post
 from . import db
 import json
 from datetime import datetime
@@ -10,7 +10,6 @@ views = Blueprint('views', __name__)
 @views.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
-    # Get all posts from all users (ordered by newest first)
     posts = Post.query.order_by(Post.date.desc()).all()
     
     if request.method == 'POST': 
@@ -19,7 +18,7 @@ def home():
         if len(post_content) < 1:
             flash('Post is too short!', category='error') 
         else:
-            # Create a new public post instead of private note
+            # Creating a new public post instead of private note
             new_post = Post(data=post_content, user_id=current_user.id, date=datetime.now())
             db.session.add(new_post)
             db.session.commit()
@@ -36,12 +35,12 @@ def create_reply(post_id):
     if len(reply_content) < 1:
         flash('Reply is too short!', category='error')
     else:
-        # Create a reply linked to the parent post
+        # a reply linked to the parent post
         new_reply = Post(
-            data=reply_content, 
+            data=reply_content,
             user_id=current_user.id, 
             date=datetime.now(),
-            parent_id=post_id  # This links the reply to the original post
+            parent_id=post_id  # Replying to the original post
         )
         db.session.add(new_reply)
         db.session.commit()

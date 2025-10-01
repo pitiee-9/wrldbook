@@ -563,3 +563,292 @@ textarea:focus {
 ::-webkit-scrollbar-thumb:hover {
     background: #a8a8a8;
 }
+
+/* ===== MOBILE RESPONSIVENESS ===== */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+        max-width: 100%;
+    }
+    
+    .ty {
+    position: fixed;
+    width: 100%;
+    left: 0;
+    bottom: 0;
+    padding: 15px;
+    background: transparent;
+    border: none;
+    z-index: 1000;
+}
+
+.ty .card {
+    background: transparent;
+    box-shadow: none;
+    border: none;
+    margin-bottom: 0;
+}
+
+.ty .card-body {
+    padding: 0;
+    background: transparent;
+    position: relative;
+}
+
+.form-control {
+    border: 2px solid #e1e8ed;
+    padding: 15px 70px 15px 20px; /* More right padding for button */
+    font-size: 16px;
+    transition: var(--transition);
+    resize: vertical;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(10px);
+    width: 100%;
+    margin-top: 0;
+}
+
+.form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    background: rgba(255, 255, 255, 0.95);
+}
+
+.tybutton {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    margin: 0;
+}
+
+.circle-send-btn {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #6a93ff, #3a5ccc);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px 0 rgba(106, 147, 255, 0.3);
+    z-index: 1001;
+}
+
+/* Remove the background from the textarea container */
+.ty .card {
+    background: none;
+    box-shadow: none;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .ty {
+        padding: 10px;
+        background: transparent;
+    }
+    
+    .form-control {
+        padding: 12px 60px 12px 15px;
+        background: rgba(255, 255, 255, 0.95);
+        border: 2px solid #e1e8ed;
+    }
+    
+    .circle-send-btn {
+        width: 45px;
+        height: 45px;
+        right: 8px;
+    }
+    
+    .send-icon {
+        font-size: 18px;
+    }
+    
+    .messages-feed {
+        margin-bottom: 100px; /* Reduced space since input is more compact */
+        padding-bottom: 10px;
+    }
+}
+
+@media (max-width: 480px) {
+    .ty {
+        padding: 8px;
+    }
+    
+    .form-control {
+        padding: 10px 55px 10px 12px;
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+    
+    .circle-send-btn {
+        width: 40px;
+        height: 40px;
+        right: 6px;
+    }
+    
+    .send-icon {
+        font-size: 16px;
+    }
+    
+    .messages-feed {
+        margin-bottom: 90px;
+    }
+}
+
+/* Ensure the textarea has proper height */
+textarea.form-control {
+    min-height: 60px;
+    max-height: 120px;
+}
+
+/* Hover effects */
+.circle-send-btn:hover {
+    background: linear-gradient(135deg, #4CAF50, #2E7D32);
+    box-shadow: 0 6px 20px 0 rgba(76, 175, 80, 0.4);
+    transform: translateY(-50%) scale(1.05) rotate(-5deg);
+}
+
+.circle-send-btn:hover .send-icon {
+    transform: translateX(2px) translateY(-2px);
+}
+
+/* Sending state */
+.circle-send-btn.sending {
+    background: #9E9E9E;
+    cursor: not-allowed;
+    transform: translateY(-50%) scale(1);
+}
+
+.circle-send-btn.sending .send-icon {
+    opacity: 0;
+}
+
+.circle-send-btn.sending .loading-spinner {
+    opacity: 1;
+    animation: spin 1s linear infinite;
+}
+    
+    .messages-feed {
+        margin-bottom: 180px; /* Space for fixed input */
+        padding-bottom: 20px;
+    }
+    
+    .post-card {
+        margin-bottom: 15px;
+    }
+    
+    .card-body {
+        padding: 15px;
+    }
+    
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: 20px;
+        padding: 0 10px;
+    }
+    
+    .card-title {
+        font-size: 1rem;
+    }
+    
+    .card-text {
+        font-size: 0.95rem;
+        margin: 10px 0;
+    }
+    
+    .reply-section {
+        margin-top: 10px;
+        padding-top: 10px;
+    }
+    
+    .replies-container {
+        margin-left: 0;
+    }
+    
+    .replies-container .card-body {
+        padding: 10px;
+    }
+    
+    /* Stack reply form vertically on mobile */
+    .reply-form .input-group {
+        flex-direction: column;
+    }
+    
+    .reply-form .input-group .form-control {
+        border-radius: 20px;
+        margin-bottom: 8px;
+    }
+    
+    .reply-form .input-group-append {
+        width: 100%;
+    }
+    
+    .reply-form .input-group-append .btn {
+        width: 100%;
+        border-radius: 20px;
+    }
+    
+    /* Adjust delete button size */
+    .btn-outline-danger {
+        padding: 4px 8px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 5px;
+    }
+    
+    .ty {
+        padding: 10px;
+    }
+    
+    .messages-feed {
+        margin-bottom: 160px;
+    }
+    
+    h1 {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+    }
+    
+    .card-body {
+        padding: 12px;
+    }
+    
+    .circle-send-btn {
+        width: 50px;
+        height: 50px;
+    }
+    
+    .send-icon {
+        font-size: 18px;
+    }
+    
+    /* Better touch targets */
+    .btn {
+        padding: 12px 16px;
+        min-height: 44px; /* Minimum touch target size */
+    }
+    
+    .btn-sm {
+        min-height: 36px;
+        padding: 8px 12px;
+    }
+}
+
+/* Prevent horizontal scrolling */
+html, body {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Improve scrolling on mobile */
+.messages-feed {
+    -webkit-overflow-scrolling: touch;
+}
