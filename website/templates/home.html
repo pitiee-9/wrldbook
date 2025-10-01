@@ -1,8 +1,5 @@
 {% extends "base.html" %} 
 {% block title %}Group Chat{% endblock %} 
-<link rel="stylesheet" href="{{url_for('static', filename='home.css')}}">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta charset="UTF-8">
 {% block content %}
 <div class="container">
     <h1 align="center" class="mb-4">World Message Board</h1>
@@ -10,62 +7,87 @@
     <div class="messages-feed">
         {% if posts %}
             {% for post in posts %}
-            <div class="card mb-3 post-card">
+            <div class="card mb-3 post-card" id="post-{{ post.id }}">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-start">
                         <div>
                             <h5 class="card-title mb-1">
-                                <strong>👤 {{ post.author.username }}</strong>
+                                <strong>👤 {{ post.author.first_name or "Anonymous" }}</strong>
                                 {% if post.user_id == current_user.id %}
                                 <span class="badge badge-secondary ml-2">You</span>
                                 {% endif %}
                             </h5>
                             <small class="text-muted">📅 {{ post.date.strftime('%Y-%m-%d %H:%M') }}</small>
                         </div>
-                        {% if post.user_id == current_user.id %}
-                        <button type="button" class="btn btn-sm btn-outline-danger" 
-                                onClick="deletePost({{ post.id }})" title="Delete your post">
-                            🗑️
-                        </button>
-                        {% endif %}
+                        <div class="post-actions">
+                            <button class="btn btn-sm btn-outline-primary reply-btn" data-post-id="{{ post.id }}">
+                                💬 Reply
+                            </button>
+                            <button class="btn btn-sm btn-outline-success like-btn" data-post-id="{{ post.id }}">
+                                👍 <span class="like-count">0</span>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info copy-btn" data-post-content="{{ post.data }}">
+                                📋 Copy
+                            </button>
+                            {% if post.user_id == current_user.id %}
+                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                    onClick="deletePost({{ post.id }})" title="Delete your post">
+                                🗑️
+                            </button>
+                            {% endif %}
+                        </div>
                     </div>
                     
                     <p class="card-text mt-3 mb-3">{{ post.data }}</p>
                     
-                    <div class="reply-section mt-3">
+                    <div class="reply-form-container mt-3" id="reply-form-{{ post.id }}" style="display: none;">
                         <form method="POST" action="/create-reply/{{ post.id }}" class="reply-form">
                             <div class="input-group">
                                 <input type="text" name="reply_content" class="form-control" 
-                                       placeholder="Write a reply..." aria-label="Reply">
+                                       placeholder="Write a reply..." aria-label="Reply" required>
                                 <div class="input-group-append">
-                                    <button class="btn btn-outline-success" type="submit">💬 Reply</button>
+                                    <button class="btn btn-outline-success" type="submit">Post Reply</button>
+                                    <button type="button" class="btn btn-outline-secondary cancel-reply" 
+                                            data-post-id="{{ post.id }}">Cancel</button>
                                 </div>
                             </div>
                         </form>
                     </div>
 
                     {% if post.replies %}
-                    <div class="replies-container mt-3 ml-4">
-                        <h6 class="text-muted">Replies:</h6>
-                        {% for reply in post.replies %}
-                        <div class="card bg-light mb-2">
-                            <div class="card-body py-2">
-                                <div class="d-flex justify-content-between align-items-start">
-                                    <div>
-                                        <strong class="text-primary">👤 {{ reply.author.username }}</strong>
-                                        <small class="text-muted ml-2">{{ reply.date.strftime('%H:%M') }}</small>
+                    <div class="replies-section mt-3">
+                        <a href="#" class="toggle-replies" data-post-id="{{ post.id }}">
+                            <small>💬 {{ post.replies|length }} repl{{ 'y' if post.replies|length == 1 else 'ies' }} - Click to show</small>
+                        </a>
+                        
+                        <div class="replies-container mt-2" id="replies-{{ post.id }}" style="display: none;">
+                            {% for reply in post.replies %}
+                            <div class="card bg-light mb-2 reply-card">
+                                <div class="card-body py-2">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <strong class="text-primary">👤 {{ reply.author.first_name or "Anonymous" }}</strong>
+                                            <small class="text-muted ml-2">{{ reply.date.strftime('%H:%M') }}</small>
+                                        </div>
+                                        <div>
+                                            <button class="btn btn-sm btn-outline-primary reply-to-reply-btn" 
+                                                    data-post-id="{{ post.id }}" 
+                                                    data-reply-to="{{ reply.author.first_name or 'Anonymous' }}">
+                                                ↪️ Reply
+                                            </button>
+                                            {% if reply.user_id == current_user.id %}
+                                            <button type="button" class="btn btn-sm btn-outline-danger" 
+                                                    onClick="deletePost({{ reply.id }})" title="Delete your reply">
+                                                🗑️
+                                            </button>
+                                            {% endif %}
+                                        </div>
                                     </div>
-                                    {% if reply.user_id == current_user.id %}
-                                    <button type="button" class="btn btn-sm btn-outline-danger" 
-                                            onClick="deletePost({{ reply.id }})" title="Delete your reply">
-                                        🗑️
-                                    </button>
-                                    {% endif %}
+                                    <p class="mb-0 mt-1">{{ reply.data }}</p>
                                 </div>
-                                <p class="mb-0 mt-1">{{ reply.data }}</p>
                             </div>
+                            {% endfor %}
                         </div>
-                        {% endfor %}
                     </div>
                     {% endif %}
                 </div>
@@ -85,10 +107,9 @@
                 <form method="POST" action="/">
                     <div class="form-group">
                         <textarea name="post_content" id="post_content" class="form-control" 
-                                  placeholder="Share something to the world!" rows="3"></textarea>
+                                  placeholder="Share something to the world!" rows="3" required></textarea>
                     </div>
                     <div align="center" class="tybutton">
-                        
                         <button type="submit" class="circle-send-btn" id="sendButton">
                             <span class="send-icon">
                                 <i class="fas fa-paper-plane"></i>
@@ -105,45 +126,100 @@
 </div>    
 
 <script>
-    function deletePost(postId) {
-        if (confirm('Are you sure you want to delete this post?')) {
-            fetch("/delete-post", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ postId: postId }),
-            }).then(response => {
-                if (response.ok) {
-                    location.reload();
-                }
-            });
-        }
+function deletePost(postId) {
+    if (confirm('Are you sure you want to delete this post?')) {
+        fetch("/delete-post", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ postId: postId }),
+        }).then(response => {
+            if (response.ok) {
+                location.reload();
+            }
+        });
     }
+}
 
-            // JavaScript
+document.querySelectorAll('.reply-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const postId = this.getAttribute('data-post-id');
+        const replyForm = document.getElementById(`reply-form-${postId}`);
+        replyForm.style.display = replyForm.style.display === 'none' ? 'block' : 'none';
+    });
+});
+
+document.querySelectorAll('.toggle-replies').forEach(link => {
+    link.addEventListener('click', function(e) {
+        e.preventDefault();
+        const postId = this.getAttribute('data-post-id');
+        const repliesContainer = document.getElementById(`replies-${postId}`);
+        const isHidden = repliesContainer.style.display === 'none';
+        
+        repliesContainer.style.display = isHidden ? 'block' : 'none';
+        this.innerHTML = isHidden ? 
+            `<small>💬 ${repliesContainer.children.length} repl${repliesContainer.children.length === 1 ? 'y' : 'ies'} - Click to hide</small>` :
+            `<small>💬 ${repliesContainer.children.length} repl${repliesContainer.children.length === 1 ? 'y' : 'ies'} - Click to show</small>`;
+    });
+});
+
+document.querySelectorAll('.cancel-reply').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const postId = this.getAttribute('data-post-id');
+        document.getElementById(`reply-form-${postId}`).style.display = 'none';
+    });
+});
+
+document.querySelectorAll('.reply-to-reply-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const postId = this.getAttribute('data-post-id');
+        const replyTo = this.getAttribute('data-reply-to');
+        const replyForm = document.getElementById(`reply-form-${postId}`);
+        const textarea = replyForm.querySelector('input[name="reply_content"]');
+        
+        textarea.value = `@${replyTo} `;
+        replyForm.style.display = 'block';
+        textarea.focus();
+    });
+});
+
+document.querySelectorAll('.copy-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const content = this.getAttribute('data-post-content');
+        navigator.clipboard.writeText(content).then(() => {
+            const originalText = this.innerHTML;
+            this.innerHTML = '✅ Copied!';
+            setTimeout(() => {
+                this.innerHTML = originalText;
+            }, 2000);
+        });
+    });
+});
+
+document.querySelectorAll('.like-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const likeCount = this.querySelector('.like-count');
+        let count = parseInt(likeCount.textContent);
+        count++;
+        likeCount.textContent = count;
+        this.classList.add('btn-success');
+        this.classList.remove('btn-outline-success');
+    });
+});
+
 document.getElementById('sendButton').addEventListener('click', function() {
     const btn = this;
     
     if (!btn.classList.contains('sending')) {
-        // Add sending class
         btn.classList.add('sending');
         
-        // Simulate sending process
         setTimeout(function() {
-            console.log('Message sent!');
-            
-            // Revert after 2 seconds
             setTimeout(function() {
                 btn.classList.remove('sending');
             }, 2000);
-            
         }, 1500);
     }
 });
-
 </script>
 {% endblock %}
-
-
-

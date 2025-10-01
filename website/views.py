@@ -10,23 +10,21 @@ views = Blueprint('views', __name__)
 @views.route('/', methods=['GET', 'POST'])
 @login_required
 def home():
-    posts = Post.query.order_by(Post.date.desc()).all()
+    main_posts = Post.query.filter_by(parent_id=None).order_by(Post.date.desc()).all()
     
     if request.method == 'POST': 
-        post_content = request.form.get('post_content')  # Changed from 'note'
+        post_content = request.form.get('post_content')
         
         if len(post_content) < 1:
             flash('Post is too short!', category='error') 
         else:
-            # Creating a new public post instead of private note
             new_post = Post(data=post_content, user_id=current_user.id, date=datetime.now())
             db.session.add(new_post)
             db.session.commit()
             flash('Message posted!', category='success')
-            return redirect(url_for('views.home'))  # Refresh to show new post
+            return redirect(url_for('views.home'))
 
-    return render_template("home.html", user=current_user, posts=posts)
-
+    return render_template("home.html", user=current_user, posts=main_posts)
 @views.route('/create-reply/<int:post_id>', methods=['POST'])
 @login_required
 def create_reply(post_id):
@@ -35,12 +33,11 @@ def create_reply(post_id):
     if len(reply_content) < 1:
         flash('Reply is too short!', category='error')
     else:
-        # a reply linked to the parent post
         new_reply = Post(
             data=reply_content,
             user_id=current_user.id, 
             date=datetime.now(),
-            parent_id=post_id  # Replying to the original post
+            parent_id=post_id
         )
         db.session.add(new_reply)
         db.session.commit()
@@ -48,7 +45,6 @@ def create_reply(post_id):
     
     return redirect(url_for('views.home'))
 
-# Keep original note functionality if you want both features
 @views.route('/private-notes')
 @login_required
 def private_notes():
@@ -73,9 +69,8 @@ def delete_post():
     post = Post.query.get(post_id)
     
     if post:
-        # Allow deletion only if user owns the post or is admin
+        # to allow deletion only if user owns the post or is admin
         if post.user_id == current_user.id:
-            # Also delete any replies to this post
             replies = Post.query.filter_by(parent_id=post_id).all()
             for reply in replies:
                 db.session.delete(reply)
