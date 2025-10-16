@@ -1,8 +1,6 @@
-from website import app
+from website import create_app
 
-# Vercel requires this
+app = create_app()
+
 if __name__ == '__main__':
-    app.run()
-else:
-    # For Vercel serverless
-    application = app
+    app.run(debug=True)
